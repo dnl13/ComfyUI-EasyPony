@@ -3,20 +3,9 @@ from pathlib import Path
 from typing import Dict
 from enum import Enum
 
-
 # COMFYUI IMPORTS
 import comfy.sd
 import folder_paths
-
-
-"""
-EasyPony - Resources for implementation of EasyPony prompt sturcture
-- https://civitai.com/articles/8547/prompting-for-score-or-source-or-rating-or-and-an-overview-of-prompting-syntax
-- https://civitai.com/articles/4871/pony-diffusion-v6-xl-prompting-resources-and-info
-- https://civitai.com/articles/4248/what-is-score9-and-how-to-use-it-in-pony-diffusion
-- https://civitai.com/articles/6160/negative-prompt-for-pdxl-v2-works-with-other-models
-
-"""
 
 class EasyPony:
 
@@ -99,7 +88,6 @@ class EasyPony:
             "waving"
         ]
     )
-
     def __init__(self):
         pass
 
@@ -158,6 +146,7 @@ class EasyPony:
                     },
                 ),
                 "Prompt": ("STRING", {"default": EasyPony.DEFAULT, "multiline": True}),
+                "Negative Prompt": ("STRING", {"default": EasyPony.NEG, "multiline": True}),
                 "SFW": (
                     "BOOLEAN",
                     {"default": True, "forceInput": False, "tooltip": "Safe for Work"},
@@ -247,8 +236,12 @@ class EasyPony:
         rating_invert and negative_elements.insert(0, f"{rating},")
         source_invert and negative_elements.insert(0, f"{source},")
 
+        # Nutzerdefinierte negative Prompts hinzufügen
+        kwargs.get("Negative Prompt") and negative_elements.insert(0, kwargs["Negative Prompt"].strip())
+
+        # Finalisieren der Prompts
         final_prompt = " ".join(prompt_elements).lower()
-        final_negative = f"{self.NEG} {' '.join(negative_elements)}".lower()
+        final_negative = " ".join(filter(None, negative_elements)).lower()
 
         clip = kwargs.get("Clip")
         last_clip_layer = kwargs.get("Stop at Clip Layer")
